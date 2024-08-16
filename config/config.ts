@@ -4,14 +4,12 @@ export default defineConfig({
   alias: {
     '@': '/src',
   },
+  styles: ['src/assets/style/common.less'],
   antd: {},
   access: {},
   model: {},
   initialState: {},
   request: {},
-  layout: {
-    title: '@umijs/max123',
-  },
   routes: [
     {
       path: '/',
