@@ -13,7 +13,8 @@
     "@ant-design/icons": "^5.4.0",
     "@ant-design/pro-components": "^2.7.15",
     "@umijs/max": "^4.3.14",
-    "antd": "^5.20.1"
+    "antd": "^5.20.1",
+    "rc-virtual-list": "^3.14.5"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

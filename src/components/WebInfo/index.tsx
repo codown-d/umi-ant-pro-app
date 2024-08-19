@@ -10,7 +10,7 @@ const WebInfo: React.FC<Props> = (props) => {
     const { name } = props;
     return <div className='flex-r-c web-info' style={{ width: '100%', height: '86px' }}>
         <div style={{ width: '108px',height:'100%' }} className='flex-c-c web-ico'>
-            <img src="/assets/web-ico.svg" alt="" />
+            <img src="/images/web-ico.svg" alt="" />
             <span className='web-title'>产品名称</span>
         </div>
         <div style={{flex:1}} className='ml16'>

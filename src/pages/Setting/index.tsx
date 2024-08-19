@@ -1,15 +1,17 @@
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import { useAccess } from '@umijs/max';
-import styles from './index.less';
 import { Button, Form, Input, Switch } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import styles from './index.less';
 
 const SettingPage: React.FC = () => {
   const access = useAccess();
-  let productList = [{
-    avatar_url: '/assets/web-ico.svg',
-    enable: true,
-  }]
+  let productList = [
+    {
+      avatar_url: '/images/web-ico.svg',
+      enable: true,
+    },
+  ];
   return (
     <PageContainer
       ghost
@@ -37,24 +39,32 @@ const SettingPage: React.FC = () => {
         </Form.Item>
 
         <Form.Item label="最长学习时间" name="password" initialValue={'mysite'}>
-          <Input addonAfter={< >123</>} />
+          <Input addonAfter={<>123</>} />
         </Form.Item>
 
-        <Form.Item label="值守自动处置延迟" name="password2" initialValue={'mysite'}>
-          <Input addonAfter={< >123</>} />
+        <Form.Item
+          label="值守自动处置延迟"
+          name="password2"
+          initialValue={'mysite'}
+        >
+          <Input addonAfter={<>123</>} />
         </Form.Item>
-        <div className='mb12'>产品适配</div>
-        <div className='flex-r-c' style={{ justifyContent: 'flex-start' }}>
+        <div className="mb12">产品适配</div>
+        <div className="flex-r-c" style={{ justifyContent: 'flex-start' }}>
           {productList.map((item, index) => {
-            return <div className={`flex-c-c ${styles['product-info']}`} key={index}>
-              <img src={item.avatar_url} alt="" style={{ width: '40px' }} />
-              <Switch defaultChecked={item.enable} className='mt2' size={'small'} />
-            </div>
+            return (
+              <div className={`flex-c-c ${styles['product-info']}`} key={index}>
+                <img src={item.avatar_url} alt="" style={{ width: '40px' }} />
+                <Switch
+                  defaultChecked={item.enable}
+                  className="mt2"
+                  size={'small'}
+                />
+              </div>
+            );
           })}
         </div>
-        <div>
-          数据抓取网页
-        </div>
+        <div>数据抓取网页</div>
         <Form.List
           name="names"
           rules={[
@@ -70,10 +80,7 @@ const SettingPage: React.FC = () => {
           {(fields, { add, remove }, { errors }) => (
             <>
               {fields.map((field, index) => (
-                <Form.Item
-                  required={false}
-                  key={field.key}
-                >
+                <Form.Item required={false} key={field.key}>
                   <Form.Item
                     {...field}
                     validateTrigger={['onChange', 'onBlur']}
@@ -81,12 +88,16 @@ const SettingPage: React.FC = () => {
                       {
                         required: true,
                         whitespace: true,
-                        message: "Please input passenger's name or delete this field.",
+                        message:
+                          "Please input passenger's name or delete this field.",
                       },
                     ]}
                     noStyle
                   >
-                    <Input placeholder="passenger name" style={{ width: '60%' }} />
+                    <Input
+                      placeholder="passenger name"
+                      style={{ width: '60%' }}
+                    />
                   </Form.Item>
                   {fields.length > 1 ? (
                     <MinusCircleOutlined onClick={() => remove(field.name)} />
@@ -102,24 +113,16 @@ const SettingPage: React.FC = () => {
                 >
                   新增
                 </Button>
-
               </Form.Item>
             </>
           )}
         </Form.List>
       </Form>
-      <div className='flex-r-c mt32'>
-        <Button
-          style={{ flex: 1 }}
-          className={'mr10'}
-        >
+      <div className="flex-r-c mt32">
+        <Button style={{ flex: 1 }} className={'mr10'}>
           恢复默认配置
         </Button>
-        <Button
-          className={'ml10'}
-          style={{ flex: 1 }}
-          type={'primary'}
-        >
+        <Button className={'ml10'} style={{ flex: 1 }} type={'primary'}>
           保存
         </Button>
       </div>

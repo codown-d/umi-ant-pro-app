@@ -1,40 +1,28 @@
 import { defineConfig } from '@umijs/max';
-
+import routes from './routes';
+const { PUBLIC_URL = '' } = process.env;
+const links = [
+  {
+    href: `${PUBLIC_URL}/font/iconfont.css`,
+    rel: 'stylesheet',
+    type: 'text/css',
+  },
+  //   {
+  //     href: `${PUBLIC_URL}/theme.css`,
+  //     rel: 'stylesheet',
+  //     type: 'text/css',
+  //   },
+];
 export default defineConfig({
+  links,
   alias: {
     '@': '/src',
   },
-  styles: ['src/assets/style/common.less'],
   antd: {},
   access: {},
   model: {},
   initialState: {},
   request: {},
-  routes: [
-    {
-      path: '/',
-      redirect: '/home',
-    },
-    {
-      name: '首页',
-      path: '/home',
-      component: './Home',
-    },
-    {
-      name: '设置',
-      path: '/setting',
-      component: './Setting',
-    },
-    {
-      name: '权限演示',
-      path: '/access',
-      component: './Access',
-    },
-    {
-      name: ' CRUD 示例',
-      path: '/study',
-      component: './Study',
-    },
-  ],
+  routes,
   npmClient: 'pnpm',
 });

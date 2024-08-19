@@ -1,18 +1,16 @@
 import layoutBg from '@/assets/images/layout-bg.svg';
-import { ProLayout } from '@ant-design/pro-components';
-import { ConfigProvider, Drawer } from 'antd';
-import { memo, useCallback, useState } from 'react';
-import AiContainer from './AiContainer';
-import './index.less';
 import PageHeader from '@/components/LayoutHeader';
-
-
+import { ProLayout } from '@ant-design/pro-components';
+import { ConfigProvider } from 'antd';
+import { memo } from 'react';
+import TzPageLayout from './TzPageLayout';
+import './index.less';
 
 const Layout = () => {
   return (
     <ProLayout
       prefixCls="tz"
-      headerRender={()=><PageHeader/>}
+      headerRender={() => <PageHeader />}
       fixedHeader={true}
       menuRender={false}
       layout={'top'}
@@ -23,7 +21,7 @@ const Layout = () => {
           colorBgHeader: 'transparent',
         },
       }}
-      contentStyle={{ padding: '16px 20px', height: 'calc(100vh - 48px)' }}
+      contentStyle={{ padding: '16px 20px' }}
     >
       <ConfigProvider
         theme={{
@@ -39,10 +37,12 @@ const Layout = () => {
               algorithm: true,
             },
           },
-          token: {},
+          token: {
+            colorPrimary: '#2177D1',
+          },
         }}
       >
-        <AiContainer />
+        <TzPageLayout />
       </ConfigProvider>
     </ProLayout>
   );
