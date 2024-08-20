@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import './index.less';
 
 interface Props {
-  name: string;
 }
 
 const WebInfo: React.FC<Props> = (props) => {
