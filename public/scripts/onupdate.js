@@ -1,24 +1,34 @@
-
-function collect(){
-console.log("onupdate.js:: ",window.location)
-// 获取当前URL的信息
-const url = window.location;
-
-// 获取各个部分的信息
-const schema = url.protocol; // 获取协议，例如 'http:' 或 'https:'
-const domain = url.hostname; // 获取域名，例如 'www.example.com'
-const port = url.port;       // 获取端口号，例如 '8080'。如果是默认端口（80或443），则为空字符串
-const path = url.pathname;   // 获取路径，例如 '/path/to/page'
-const query = url.search;    // 获取查询字符串，例如 '?name=value&key=value'
-const hash = url.hash;       // 获取锚点值，例如 '#section1'
-
-// 打印这些信息
-console.log('Schema:', schema);
-console.log('Domain:', domain);
-console.log('Port:', port);
-console.log('Path:', path);
-console.log('Query:', query);
-console.log('Hash:', hash);
-
+function collectWebInfo() {
+  return window.location;
 }
-collect()
+function sendMessage(data) {
+  window.postMessage(
+    {
+      type: 'FROM_PAGE',
+      msg: data,
+    },
+    '*',
+  );
+}
+function sendWebInfo() {
+  const webInfo = collectWebInfo();
+  const { protocol, hostname, port, pathname, search, hash } = webInfo;
+  sendMessage(
+    JSON.stringify({
+      protocol,
+      hostname,
+      port,
+      pathname,
+      search,
+      hash,
+      title: document.title,
+    }),
+  );
+}
+window.addEventListener('message', (event) => {
+  if (event.source !== window) return; // 确保消息是从同一个页面发来的
+  if (event.data.type && event.data.type === 'FROM_CONTENT_SCRIPT') {
+    console.log('Received from content script:', event.data.msg);
+  }
+});
+sendWebInfo();

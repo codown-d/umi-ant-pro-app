@@ -1,15 +1,23 @@
-const welcomePage = 'index.html';
+const welcomePage = '/index.html';
 // const mainPage = 'frontend/side.html';
 
 chrome.runtime.onInstalled.addListener(() => {
   debug('chrome.runtime.onInstalled.addListener:');
-
   chrome.sidePanel.setOptions({ path: welcomePage });
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
+// 监听来自 content script 的消息
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === 'FROM_CONTENT_SCRIPT') {
+    console.log('Message from content script:', request.msg);
 
+    // 向 content script 发送响应
+    sendResponse({ farewell: 'Goodbye from background' });
+  }
+});
 //页面刷新或打开时触发动作
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  console.log(tabId, changeInfo, tab);
   //只关注 complete ，其他不关注
   //changeInfo.status doc:: https://developer.chrome.com/docs/extensions/reference/api/tabs#type-TabStatus
   if (changeInfo.status === 'complete') {
@@ -67,16 +75,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 function debug(...args) {
   const timestamp = new Date().toISOString();
-  console.log(
-    `
-    
-    
-    [DEBUG - ${timestamp}]
-    
-    `,
-    ...args,
-  );
-  // console.log(...args);
 }
 
 // onCompleted，没有body数据
@@ -84,18 +82,20 @@ chrome.webRequest.onCompleted.addListener(
   function (details) {
     debug('chrome.webRequest.onCompleted:');
 
-    console.log('Completed Request URL:', details.url);
-    console.log('method:', details.method, details);
-    console.log('Response Status Code:', details.statusCode);
+    // console.log('Completed Request URL:', details.url);
+    // console.log('method:', details.method, details);
+    // console.log('Response Status Code:', details.statusCode);
 
     let postData = '';
     if (details.method == 'POST') {
-      postData = decodeURIComponent(
-        String.fromCharCode.apply(
-          null,
-          new Uint8Array(details.requestBody.raw[0].bytes),
-        ),
-      );
+      if (details.requestBody) {
+        postData = decodeURIComponent(
+          String.fromCharCode.apply(
+            null,
+            new Uint8Array(details.requestBody.raw[0].bytes),
+          ),
+        );
+      }
       //console.log(postedString)
     }
 
@@ -146,10 +146,10 @@ chrome.webRequest.onCompleted.addListener(
 
       // 存储更新后的数组
       chrome.storage.session.set({ [key]: resArray }, function () {
-        console.log(
-          'Array updated and stored in chrome.storage.session',
-          resArray,
-        );
+        // console.log(
+        //   'Array updated and stored in chrome.storage.session',
+        //   resArray,
+        // );
       });
     });
   },

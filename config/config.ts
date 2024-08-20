@@ -18,6 +18,9 @@ export default defineConfig({
   alias: {
     '@': '/src',
   },
+  history: {
+    type: 'hash', // 使用 hash 路由模式
+  },
   antd: {},
   access: {},
   model: {},
