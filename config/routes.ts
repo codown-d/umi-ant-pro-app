@@ -4,28 +4,33 @@ export default [
     redirect: '/home',
   },
   {
-    name: '首页',
+    name: 'home',
+    title: '首页', // 设置页面标题
     path: '/home',
     component: './Home',
     meta: { customParam: 'customValue' },
   },
   {
-    name: '设置',
+    name: 'setting',
+    title: '设置', // 设置页面标题
     path: '/setting',
     component: './Setting',
   },
   {
-    name: '权限演示',
+    name: 'access',
+    title: '权限演示', // 设置页面标题
     path: '/access',
     component: './Access',
   },
   {
-    name: '学习模式',
+    name: 'study',
+    title: '学习模式', // 设置页面标题
     path: '/study',
     component: './Study',
   },
   {
-    name: '值守模式',
+    name: 'attendance',
+    title: '值守模式', // 设置页面标题
     path: '/attendance',
     component: './Study',
   },
