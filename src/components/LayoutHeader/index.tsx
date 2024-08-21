@@ -54,7 +54,7 @@ let LayoutActions = () => {
           closable={false}
           extra={
             <span onClick={onClose} className="cursor-p">
-              span
+              <i className={'icon iconfont icon-close'}></i>
             </span>
           }
           onClose={onClose}
@@ -86,7 +86,7 @@ let LayoutActions = () => {
               <span>info@tensorsecurity.cn</span>
               <span className="mt8">400-133-0580</span>
             </div>
-            <img src="/assets/QR_code.svg" alt="" style={{ width: '80px' }} />
+            <img src="/images/QR_code.svg" alt="" style={{ width: '80px' }} />
           </div>
         </Drawer>
       </>

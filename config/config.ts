@@ -27,5 +27,6 @@ export default defineConfig({
   initialState: {},
   request: {},
   routes,
+  // devtool: process.env.NODE_ENV === 'development' ? 'eval' : false,
   npmClient: 'pnpm',
 });

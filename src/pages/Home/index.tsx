@@ -1,65 +1,30 @@
 import WebInfo from '@/components/WebInfo';
 import { useAccess, useModel, useNavigate } from '@umijs/max';
 import { Button, Input, Select } from 'antd';
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import moment from 'moment'
 import styles from './index.less';
-const { Option } = Select;
+import ActionComponent from './components/ActionComponent';
+import { getModelInfo } from '@/services';
+
 
 const HomePage: React.FC = () => {
-  const { name } = useModel('global');
-  const navigate = useNavigate();
-  const selectBefore = (
-    <Select defaultValue="http://" className="select-before">
-      <Option value="http://">http://</Option>
-      <Option value="https://">https://</Option>
-    </Select>
-  );
-  const ActionComponent = React.memo((props) => {
-    const access = useAccess();
-    return access.canSeeAdmin ? (
-      <>
-        <Button
-          className={`mb12 f16 mt40 ${styles.btn}`}
-          onClick={() => {
-            navigate('/study');
-          }}
-        >
-          学习模式
-        </Button>
-        <Button
-          className={`f16 ${styles.btn}`}
-          onClick={() => {
-            navigate('/attendance');
-          }}
-        >
-          值守模式
-        </Button>
-      </>
-    ) : !access.canSeeAdmin ? (
-      <div className={`f14 fw400 mt40 ${styles.tips}`}>
-        未适配的产品无法进行学习或值守
-      </div>
-    ) : (
-      <>
-        <div className={`f14 fw400 mt40 ${styles.tips}`}>
-          非数据抓取页面无法进行学习或值守
-        </div>
-        <Input
-          addonBefore={selectBefore}
-          defaultValue="mysite"
-          className={`mt12 ${styles.select}`}
-        />
-        <Button className={`f16 mt12`}>设置为数据抓取页面</Button>
-      </>
-    );
-  });
+  let [modelInfo, setModelInfo] = useState<any>()
+  let getModelInfoFn = useCallback(() => {
+    getModelInfo().then(res => {
+      setModelInfo(res.data)
+    })
+  }, [])
+  useEffect(() => {
+    getModelInfoFn()
+  }, [getModelInfoFn]);
   return (
     <div className={styles.container}>
-      <WebInfo name={''} />
+      <WebInfo />
       <div className="flex-c-c mt32">
         <img src="/images/ai.svg" alt="" style={{ width: '100px' }} />
-        <div className={`mb4 f16 ${styles.model}`}>模型 - 38 版本 20240726</div>
-        <div className={`mb4 f12 ${styles.time}`}>2024-07-26 04:00:00</div>
+        <div className={`mb4 f16 ${styles.model}`}>模型 - {modelInfo?.version}版本 {modelInfo?.time}</div>
+        <div className={`mb4 f12 ${styles.time}`}>{moment().format('YYYY-MM-DD HH:mm:ss')}</div>
         <div className={`mb4 f12 ${styles.desc}`}>
           模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述
         </div>

@@ -14,6 +14,8 @@
     "@ant-design/pro-components": "^2.7.15",
     "@umijs/max": "^4.3.14",
     "antd": "^5.20.1",
+    "axios": "^1.7.4",
+    "moment": "^2.30.1",
     "rc-virtual-list": "^3.14.5"
   },
   "devDependencies": {

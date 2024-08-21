@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "InsightGo",
-  "version": "2.0",
+  "version": "1.0",
   "description": "用户数据分析系统.",
   "permissions": [
     "storage",
@@ -42,18 +42,13 @@
     }
   },
   "side_panel": {
-    "default_path": "index.html"
+    "default_path": "index.html",
+    "default_panel": "index.html"
   },
   "icons": {
     "16": "images/icon-16.png",
     "32": "images/icon-32.png",
     "48": "images/icon-48.png",
     "128": "images/icon-128.png"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["/scripts/inject.js"],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  }
 }
