@@ -1,11 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './index.less';
 
-interface Props {
-}
+interface Props {}
 
 const WebInfo: React.FC<Props> = (props) => {
-  const { name } = props;
   const [info, setInfo] = useState<{
     protocol: string;
     hostname: string;
@@ -18,14 +16,7 @@ const WebInfo: React.FC<Props> = (props) => {
   useEffect(() => {
     // 监听来自 background 或 content script 的消息
     chrome.runtime?.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.type === 'FROM_CONTENT_SCRIPT') {
-        // 更新 state
-        console.log(
-          'chrome.runtime?.onMessage',
-          request,
-          request.msg,
-          JSON.parse(request.msg),
-        );
+      if (request.type === 'FROM_CONTENT_WEBINFO') {
         setInfo(JSON.parse(request.msg));
       }
     });

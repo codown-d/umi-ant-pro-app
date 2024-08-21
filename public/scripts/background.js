@@ -6,70 +6,50 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.sidePanel.setOptions({ path: welcomePage });
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
-// 监听来自 content script 的消息
+const basUrl = 'http://139.9.228.139:31188';
+async function fetchData(url, method, prams) {
+  let newUrl = url;
+  if (method == 'GET') {
+    newUrl = `${url}?${new URLSearchParams(prams)}`;
+  }
+  try {
+    const response = await fetch(`${basUrl}${newUrl}`, {
+      method: method || 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: method == 'GET' ? undefined : JSON.stringify(prams),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    throw new Error(`请求失败: ${error.message}`);
+  }
+}
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log(request);
   if (request.type === 'FROM_CONTENT_SCRIPT') {
-    console.log('Message from content script:', request.msg);
-
-    // 向 content script 发送响应
-    sendResponse({ farewell: 'Goodbye from background' });
+    sendResponse({ msg: 'Goodbye from background' });
+  } else if (request.type === 'FROM_CONTENT_IP') {
+    fetchData('/api/v1/ip/' + request.msg)
+      .then((data) => {
+        sendResponse({ msg: Object.assign({ ip: request.msg }, data) });
+      })
+      .catch((error) => {
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
   }
 });
 //页面刷新或打开时触发动作
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  console.log(tabId, changeInfo, tab);
-  //只关注 complete ，其他不关注
-  //changeInfo.status doc:: https://developer.chrome.com/docs/extensions/reference/api/tabs#type-TabStatus
   if (changeInfo.status === 'complete') {
-    debug(
-      'chrome.tabs.onUpdated.addListener',
-      tabId,
-      changeInfo.status,
-      changeInfo,
-      tab,
-    );
-
     chrome.scripting.executeScript({
       target: { tabId: tabId },
-      files: ['scripts/onupdate.js'],
+      files: ['scripts/onupdate.js', 'scripts/index-DpZqY0uN.js'],
     });
-
-    // sessionStorage.setItem('username', {
-    //     action: 'sendData', data: {
-    //         key: "value", url: changeInfo.url, tabId: tabId, changeInfo: changeInfo, t1: "t2",
-    //     }, t2: "t3"
-    // });
-
-    const key = `meta_data_${tabId}`;
-    const newValue = {
-      [key]: {
-        url: tab.url,
-        tabId: tabId,
-        post: '1111post string',
-        title: tab.title,
-      },
-    };
-    // setData(newValue)
-    // 更新存储数据
-    debug('save value:', key, newValue);
-
-    chrome.storage.session.set(newValue, () => {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError);
-      } else {
-        console.log('chrome.tabs.onUpdated.addListener::数据已更新');
-      }
-    });
-
-    // 获取 SessionStorage
-    //         const username = sessionStorage.getItem('username');
-    //         console.log(username);
-
-    // chrome.runtime.sendMessage({
-    //     action: 'sendData', data: {
-    //         key: "value", url: changeInfo.url, tabId: tabId, changeInfo: changeInfo, t1: "t2",
-    //     }, t2: "t3"
-    // })
   }
 });
 

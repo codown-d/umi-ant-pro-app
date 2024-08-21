@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 创建 axios 实例
 const instance = axios.create({
-  baseURL: 'http://192.168.3.36:8000/', // 替换为实际的 API 基地址
+  baseURL: 'http://localhost:8000/', // 替换为实际的 API 基地址
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,7 +16,7 @@ instance.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // 响应拦截器
@@ -28,7 +28,7 @@ instance.interceptors.response.use(
   (error) => {
     // 对响应错误做些什么
     return Promise.reject(error);
-  }
+  },
 );
 
 export default instance;

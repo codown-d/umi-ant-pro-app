@@ -15,8 +15,20 @@ export default {
     res.json({
       success: true,
       data: {
-        version: 38,
-        time: '20240726'
+        version: (Math.random() * 100 + 50).toFixed(0),
+        time: '20240726',
+      },
+      errorCode: 0,
+    });
+  },
+  'GET /api/v1/systemInfo': (req: any, res: any) => {
+    res.json({
+      success: true,
+      data: {
+        model: `模型 - ${(Math.random() * 100 + 50).toFixed(0)}版本 20240726`,
+        description: 'new Date().getTime()',
+        latestLearning: new Date().getTime(),
+        learningPeriod: '1h12h',
       },
       errorCode: 0,
     });

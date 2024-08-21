@@ -21,6 +21,7 @@ export default defineConfig({
   history: {
     type: 'hash', // 使用 hash 路由模式
   },
+  mock: {},
   antd: {},
   access: {},
   model: {},

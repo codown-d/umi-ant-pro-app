@@ -1,10 +1,10 @@
 function collectWebInfo() {
   return window.location;
 }
-function sendMessage(data) {
+function sendMessage(data, type) {
   window.postMessage(
     {
-      type: 'FROM_PAGE',
+      type: type || 'FROM_PAGE',
       msg: data,
     },
     '*',
@@ -23,12 +23,55 @@ function sendWebInfo() {
       hash,
       title: document.title,
     }),
+    'FROM_PAGE_WEBINFO',
   );
 }
-window.addEventListener('message', (event) => {
-  if (event.source !== window) return; // 确保消息是从同一个页面发来的
-  if (event.data.type && event.data.type === 'FROM_CONTENT_SCRIPT') {
-    console.log('Received from content script:', event.data.msg);
+var pos = { startX: 0, startY: 0 };
+function handleMessage(event) {
+  if (event.source !== window) return;
+  let type = event.data.type;
+  console.log('Received from content script:', event.data.msg);
+  if (type === 'FROM_CONTENT_SCRIPT') {
+  } else if (type === 'FROM_CONTENT_IP') {
+    if (window.AISOC) {
+      let msg = event.data.msg;
+      window.AISOC.openModal(msg, pos);
+    }
   }
-});
-sendWebInfo();
+}
+
+function aisocMousedown(event) {
+  pos = { startX: event.clientX, startY: event.clientY };
+}
+function isValidIP(ip) {
+  const ipRegex =
+    /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$/;
+
+  return ipRegex.test(ip);
+}
+function aisocMouseup(event) {
+  const distance = Math.abs(event.clientX - pos.startX);
+  console.log(123, distance, pos);
+  if (distance > 5) {
+    const selectedText = window.getSelection().toString().trim();
+    if (selectedText && isValidIP(selectedText)) {
+      console.log('Selected text:', selectedText);
+      sendMessage(selectedText, 'FROM_PAGE_IP');
+    }
+  }
+}
+function init() {
+  if (!document.getElementById('AISOC')) {
+    const newDiv = document.createElement('div');
+    newDiv.id = 'AISOC';
+    newDiv.style.display = 'none';
+    document.body.appendChild(newDiv);
+
+    window.addEventListener('message', handleMessage);
+    window.addEventListener('mousedown', aisocMousedown);
+    window.addEventListener('mouseup', aisocMouseup);
+  } else {
+    sendWebInfo();
+  }
+}
+init();
