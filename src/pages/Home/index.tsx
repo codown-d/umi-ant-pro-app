@@ -1,18 +1,20 @@
 import WebInfo from '@/components/WebInfo';
 import { getSystemInfo } from '@/services';
 import moment from 'moment';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import ActionComponent from './components/ActionComponent';
 import styles from './index.less';
 
 const HomePage: React.FC = () => {
   let [modelInfo, setModelInfo] = useState<any>();
+
   let getModelInfoFn = useCallback(() => {
     getSystemInfo().then((res) => {
       console.log(res);
       setModelInfo(res.data);
     });
   }, []);
+
   useEffect(() => {
     getModelInfoFn();
   }, [getModelInfoFn]);

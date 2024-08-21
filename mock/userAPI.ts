@@ -33,6 +33,16 @@ export default {
       errorCode: 0,
     });
   },
+  'GET /api/v1/appConfig': (req: any, res: any) => {
+    res.json({
+      success: true,
+      data: [{
+        value: '123',
+        label: '123'
+      }],
+      errorCode: 0,
+    });
+  },
   'PUT /api/v1/user/': (req: any, res: any) => {
     res.json({
       success: true,

@@ -6,7 +6,6 @@ const TzPageLayout = (props: any): ReactElement | null => {
   const AppData = useAppData();
   const { routes } = AppData;
   let [pageType] = useState(location.pathname);
-  console.log(location, routes);
   return (
     <div>
       <Outlet />

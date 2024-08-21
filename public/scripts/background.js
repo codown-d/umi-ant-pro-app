@@ -1,11 +1,5 @@
 const welcomePage = '/index.html';
 // const mainPage = 'frontend/side.html';
-
-chrome.runtime.onInstalled.addListener(() => {
-  debug('chrome.runtime.onInstalled.addListener:');
-  chrome.sidePanel.setOptions({ path: welcomePage });
-  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
-});
 const basUrl = 'http://139.9.228.139:31188';
 async function fetchData(url, method, prams) {
   let newUrl = url;
@@ -28,22 +22,15 @@ async function fetchData(url, method, prams) {
     throw new Error(`请求失败: ${error.message}`);
   }
 }
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log(request);
-  if (request.type === 'FROM_CONTENT_SCRIPT') {
-    sendResponse({ msg: 'Goodbye from background' });
-  } else if (request.type === 'FROM_CONTENT_IP') {
-    fetchData('/api/v1/ip/' + request.msg)
-      .then((data) => {
-        sendResponse({ msg: Object.assign({ ip: request.msg }, data) });
-      })
-      .catch((error) => {
-        sendResponse({ success: false, error: error.message });
-      });
-    return true;
-  }
+function debug(...args) {
+  const timestamp = new Date().toISOString();
+}
+chrome.runtime.onInstalled.addListener(() => {
+  debug('chrome.runtime.onInstalled.addListener:');
+  chrome.sidePanel.setOptions({ path: welcomePage });
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 });
-//页面刷新或打开时触发动作
+
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {
     chrome.scripting.executeScript({
@@ -52,10 +39,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     });
   }
 });
-
-function debug(...args) {
-  const timestamp = new Date().toISOString();
-}
 
 // onCompleted，没有body数据
 chrome.webRequest.onCompleted.addListener(
@@ -143,7 +126,30 @@ chrome.webRequest.onCompleted.addListener(
   },
   ['responseHeaders', 'extraHeaders'],
 );
-
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log(request);
+  if (request.type === 'FROM_CONTENT_SCRIPT') {
+    sendResponse({ msg: 'Goodbye from background' });
+  } 
+  // else if (request.type === 'FROM_CONTENT_WEBINFO') {
+  //   chrome.storage.local.set({ webInfo: JSON.parse(request.msg) }, () => {
+  //     console.log(chrome.runtime)
+  //     if (chrome.runtime.lastError) {
+  //     }
+  //   });
+  // }
+  else if (request.type === 'FROM_CONTENT_IP') {
+    fetchData('/api/v1/ip/' + request.msg)
+      .then((data) => {
+        sendResponse({ msg: Object.assign({ ip: request.msg }, data) });
+      })
+      .catch((error) => {
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+});
+//页面刷新或打开时触发动作
 //
 // chrome.devtools.network.onRequestFinished.addListener(request => {
 //

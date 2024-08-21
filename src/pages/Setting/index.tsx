@@ -4,6 +4,8 @@ import { useAccess } from '@umijs/max';
 import { Button, Form, Input, InputNumber, Select, Switch } from 'antd';
 import './index.less';
 import styles from './index.less';
+import { useCallback } from 'react';
+import { postSystemConfig } from '@/services';
 
 let { Option } = Select;
 const SettingPage: React.FC = () => {
@@ -22,6 +24,13 @@ const SettingPage: React.FC = () => {
       </Select>
     </Form.Item>
   );
+
+  const [form] = Form.useForm();
+  let postSystemConfigFn = useCallback((val) => {
+    postSystemConfig(val).then(res => {
+      console.log(res)
+    })
+  }, [])
   return (
     <PageContainer
       ghost
@@ -35,25 +44,27 @@ const SettingPage: React.FC = () => {
       }}
     >
       <Form
+        form={form}
         colon={false}
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
         initialValues={{ remember: true }}
         autoComplete="off"
-        className={'setting-form'}
+        className='setting-form'
+        layout={'horizontal'}
+        labelAlign={'left'}
       >
         <Form.Item
           label="网页划词查询 IP 情报"
           name="username"
           valuePropName="checked"
+          className='setting-form-item-between'
         >
           <Switch defaultChecked />
         </Form.Item>
 
-        <Form.Item label="最长学习时间" name="password" initialValue={'mysite'}>
+        <Form.Item label="最长学习时间" name="password" initialValue={90}
+          className='setting-form-item-between'>
           <InputNumber
-            addonAfter={<>分钟</>}
-            defaultValue={90}
+            addonAfter={'分钟'}
             style={{ width: '100px' }}
           />
         </Form.Item>
@@ -61,11 +72,11 @@ const SettingPage: React.FC = () => {
         <Form.Item
           label="值守自动处置延迟"
           name="password2"
-          initialValue={'mysite'}
+          initialValue={10}
+          className='setting-form-item-between'
         >
           <InputNumber
-            addonAfter={<>秒</>}
-            defaultValue={10}
+            addonAfter={'秒'}
             style={{ width: '100px' }}
           />
         </Form.Item>
@@ -100,7 +111,10 @@ const SettingPage: React.FC = () => {
           {(fields, { add, remove }, { errors }) => (
             <>
               {fields.map((field, index) => (
-                <div className="mb8">
+                <Form.Item
+                  required={false}
+                  key={field.key}
+                  className="mb8">
                   <Form.Item
                     {...field}
                     validateTrigger={['onChange', 'onBlur']}
@@ -127,7 +141,7 @@ const SettingPage: React.FC = () => {
                       className="ml10 f16"
                     />
                   ) : null}
-                </div>
+                </Form.Item>
               ))}
               <Button
                 type="dashed"
@@ -141,12 +155,17 @@ const SettingPage: React.FC = () => {
             </>
           )}
         </Form.List>
+
       </Form>
       <div className="flex-r-c mt32">
         <Button style={{ flex: 1 }} className={'mr10'}>
           恢复默认配置
         </Button>
-        <Button className={'ml10'} style={{ flex: 1 }} type={'primary'}>
+        <Button className={'ml10'} style={{ flex: 1 }} type={'primary'} onClick={() => {
+          form.validateFields().then(val => {
+            postSystemConfigFn(val)
+          })
+        }}>
           保存
         </Button>
       </div>

@@ -5,6 +5,7 @@ import { ConfigProvider } from 'antd';
 import { memo } from 'react';
 import TzPageLayout from './TzPageLayout';
 import './index.less';
+import { AppConfigProvider } from '@/contexts/AppConfigContext';
 
 const Layout = () => {
   return (
@@ -42,7 +43,9 @@ const Layout = () => {
           },
         }}
       >
-        <TzPageLayout />
+        <AppConfigProvider>
+          <TzPageLayout />
+        </AppConfigProvider>
       </ConfigProvider>
     </ProLayout>
   );

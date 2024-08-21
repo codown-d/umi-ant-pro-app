@@ -1,7 +1,8 @@
 import { useNavigate } from '@umijs/max';
 import { Button, Input, Select } from 'antd';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import styles from '../index.less';
+import { AppConfigContext } from '@/contexts/AppConfigContext';
 const { Option } = Select;
 const selectBefore = (
   <Select defaultValue="http://" className="select-before">
@@ -10,7 +11,10 @@ const selectBefore = (
   </Select>
 );
 const ActionComponent : React.FC = () => {
-
+  const { permissions } = useContext(AppConfigContext);
+  useEffect(()=>{
+    console.log(permissions)
+  },[permissions])
   const navigate = useNavigate();
   return true ? (
     <>
@@ -49,4 +53,4 @@ const ActionComponent : React.FC = () => {
     </>
   );
 }
-export default ActionComponent;
+export default ActionComponent;      

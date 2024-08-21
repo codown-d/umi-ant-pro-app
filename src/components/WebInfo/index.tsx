@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './index.less';
+import storage from '@/utils/storage';
 
-interface Props {}
-
+interface Props { }
 const WebInfo: React.FC<Props> = (props) => {
   const [info, setInfo] = useState<{
     protocol: string;
@@ -13,14 +13,31 @@ const WebInfo: React.FC<Props> = (props) => {
     hash: string;
     title: string;
   }>();
+  let handleWebInfo = useCallback((webInfo) => {
+    storage.save({ webInfo })
+    setInfo({ ...webInfo })
+  }, [])
+  let shouldListen=useRef(true)
   useEffect(() => {
-    // 监听来自 background 或 content script 的消息
-    chrome.runtime?.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.type === 'FROM_CONTENT_WEBINFO') {
-        setInfo(JSON.parse(request.msg));
-      }
-    });
-  }, []);
+    if (shouldListen.current) {
+      shouldListen.current=false
+      chrome.runtime?.onMessage.addListener((request, sender, sendResponse) => {
+        if (request.type === 'FROM_CONTENT_WEBINFO') {
+          let webInfo = JSON.parse(request.msg)
+          console.log(webInfo)
+          handleWebInfo(webInfo)
+          sendResponse('')
+        }
+      });
+    }
+    storage?.get('webInfo').then(res => {
+      setInfo(res?.webInfo)
+    })
+    return ()=>{
+      shouldListen.current=false
+    }
+  }, [])
+
   let { url, hash, title } = useMemo(() => {
     return {
       url: `${info?.protocol}//${info?.hostname}${info?.pathname}`,
