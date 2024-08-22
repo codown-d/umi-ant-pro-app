@@ -1,50 +1,18 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AppConfigContext } from '@/contexts/AppConfigContext';
+import React, { useContext, useMemo } from 'react';
 import './index.less';
-import storage from '@/utils/storage';
 
-interface Props { }
+interface Props {}
 const WebInfo: React.FC<Props> = (props) => {
-  const [info, setInfo] = useState<{
-    protocol: string;
-    hostname: string;
-    port: string;
-    pathname: string;
-    search: string;
-    hash: string;
-    title: string;
-  }>();
-  let handleWebInfo = useCallback((webInfo) => {
-    storage.save({ webInfo })
-    setInfo({ ...webInfo })
-  }, [])
-  let shouldListen=useRef(true)
-  useEffect(() => {
-    if (shouldListen.current) {
-      shouldListen.current=false
-      chrome.runtime?.onMessage.addListener((request, sender, sendResponse) => {
-        if (request.type === 'FROM_CONTENT_WEBINFO') {
-          let webInfo = JSON.parse(request.msg)
-          console.log(webInfo)
-          handleWebInfo(webInfo)
-          sendResponse('')
-        }
-      });
-    }
-    storage?.get('webInfo').then(res => {
-      setInfo(res?.webInfo)
-    })
-    return ()=>{
-      shouldListen.current=false
-    }
-  }, [])
-
-  let { url, hash, title } = useMemo(() => {
+  const { webInfo } = useContext(AppConfigContext);
+  let { host, hash, title } = useMemo(() => {
     return {
-      url: `${info?.protocol}//${info?.hostname}${info?.pathname}`,
-      hash: info?.hash,
-      title: info?.title,
+      title: webInfo?.title,
+      url: webInfo?.url,
+      hash: webInfo?.hash,
+      host: webInfo?.host,
     };
-  }, [info]);
+  }, [webInfo]);
   return (
     <div
       className="flex-r-c web-info"
@@ -59,7 +27,7 @@ const WebInfo: React.FC<Props> = (props) => {
       </div>
       <div style={{ flex: 1 }} className="ml16">
         <div className="web-name">{title}</div>
-        <div className="web-url mt2">URL: {url}</div>
+        <div className="web-url mt2">URL: {host}</div>
         <div className="web-url web-path mt2">路径：{hash}</div>
       </div>
     </div>

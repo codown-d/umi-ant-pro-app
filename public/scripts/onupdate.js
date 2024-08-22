@@ -1,28 +1,15 @@
-function collectWebInfo() {
-  return window.location;
-}
 function sendMessage(data, type) {
   window.postMessage(
     {
-      type: type || 'FROM_PAGE',
       msg: data,
+      type: type || 'FROM_PAGE',
     },
     '*',
   );
 }
 function sendWebInfo() {
-  const webInfo = collectWebInfo();
-  const { protocol, hostname, port, pathname, search, hash } = webInfo;
   sendMessage(
-    JSON.stringify({
-      protocol,
-      hostname,
-      port,
-      pathname,
-      search,
-      hash,
-      title: document.title,
-    }),
+    JSON.stringify({ url: window.location.href, title: document.title }),
     'FROM_PAGE_WEBINFO',
   );
 }
@@ -71,6 +58,7 @@ function init() {
     window.addEventListener('mousedown', aisocMousedown);
     window.addEventListener('mouseup', aisocMouseup);
   } else {
+    console.log('AISOC is already initialized. 发送webInfo');
     sendWebInfo();
   }
 }

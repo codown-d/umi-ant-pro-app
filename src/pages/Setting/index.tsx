@@ -1,11 +1,18 @@
+import { postSystemConfig, putAppConfig } from '@/services';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import { useAccess } from '@umijs/max';
-import { Button, Form, Input, InputNumber, Select, Switch } from 'antd';
-import './index.less';
-import styles from './index.less';
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Switch,
+  message,
+} from 'antd';
 import { useCallback } from 'react';
-import { postSystemConfig } from '@/services';
+import './index.less';
 
 let { Option } = Select;
 const SettingPage: React.FC = () => {
@@ -16,21 +23,24 @@ const SettingPage: React.FC = () => {
       enable: true,
     },
   ];
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle initialValue={'http'}>
-      <Select style={{ width: 90 }}>
-        <Option value="http">http</Option>
-        <Option value="https">https</Option>
-      </Select>
-    </Form.Item>
-  );
 
   const [form] = Form.useForm();
   let postSystemConfigFn = useCallback((val) => {
-    postSystemConfig(val).then(res => {
-      console.log(res)
-    })
-  }, [])
+    console.log(val);
+    postSystemConfig(val).then((res) => {
+      if (res.code === 0) {
+        message.success('保存成功');
+      }
+      console.log(res);
+    });
+  }, []);
+  let putAppConfigFn = useCallback(() => {
+    putAppConfig().then((res) => {
+      if (res.code === 0) {
+        message.success('恢复默认配置');
+      }
+    });
+  }, []);
   return (
     <PageContainer
       ghost
@@ -42,81 +52,80 @@ const SettingPage: React.FC = () => {
           margin: 0,
         },
       }}
+      childrenContentStyle={{ padding: 0 }}
     >
       <Form
         form={form}
         colon={false}
         initialValues={{ remember: true }}
+        labelCol={{ flex: `calc(100% - 140px)` }}
+        wrapperCol={{ flex: '100px' }}
         autoComplete="off"
-        className='setting-form'
+        className="setting-form"
         layout={'horizontal'}
         labelAlign={'left'}
       >
         <Form.Item
           label="网页划词查询 IP 情报"
-          name="username"
+          name="enable"
           valuePropName="checked"
-          className='setting-form-item-between'
+          className="setting-form-item-between"
+          initialValue={true}
         >
-          <Switch defaultChecked />
+          <Switch />
         </Form.Item>
 
-        <Form.Item label="最长学习时间" name="password" initialValue={90}
-          className='setting-form-item-between'>
-          <InputNumber
-            addonAfter={'分钟'}
-            style={{ width: '100px' }}
-          />
+        <Form.Item
+          label="最长学习时间"
+          name="maxStudyTime"
+          initialValue={90}
+          className="setting-form-item-between"
+        >
+          <InputNumber addonAfter={'分钟'} style={{ width: '100px' }} />
         </Form.Item>
 
         <Form.Item
           label="值守自动处置延迟"
-          name="password2"
+          name="disposeDelay"
           initialValue={10}
-          className='setting-form-item-between'
+          className="setting-form-item-between"
         >
-          <InputNumber
-            addonAfter={'秒'}
-            style={{ width: '100px' }}
-          />
+          <InputNumber addonAfter={'秒'} style={{ width: '100px' }} />
         </Form.Item>
         <div className="mb12 mt8">产品适配</div>
-        <div className="flex-r-c" style={{ justifyContent: 'flex-start' }}>
+        <div className="flex-r-c mb20" style={{ justifyContent: 'flex-start' }}>
           {productList.map((item, index) => {
             return (
-              <div className={`flex-c-c ${styles['product-info']}`} key={index}>
+              <div className={`flex-c-c product-info act`} key={index}>
                 <img src={item.avatar_url} alt="" style={{ width: '40px' }} />
-                <Switch
-                  defaultChecked={item.enable}
-                  className="mt2"
-                  size={'small'}
-                />
+                <Form.Item
+                  noStyle
+                  valuePropName="checked"
+                  name={['product', index, 'enable']}
+                >
+                  <Switch
+                    className="mt2"
+                    size={'small'}
+                    defaultChecked={true}
+                  />
+                </Form.Item>
               </div>
             );
           })}
         </div>
         <div className="mb8">数据抓取网页</div>
-        <Form.List
-          name="names"
-          rules={[
-            {
-              validator: async (_, names) => {
-                if (!names || names.length < 2) {
-                  return Promise.reject(new Error('At least 2 passengers'));
-                }
-              },
-            },
-          ]}
-        >
+        <Form.List name="product">
           {(fields, { add, remove }, { errors }) => (
             <>
-              {fields.map((field, index) => (
+              {fields.map(({ key, name, ...restField }) => (
                 <Form.Item
                   required={false}
-                  key={field.key}
-                  className="mb8">
+                  key={key}
+                  className="mb8"
+                  wrapperCol={{ flex: 1 }}
+                >
                   <Form.Item
-                    {...field}
+                    {...restField}
                     validateTrigger={['onChange', 'onBlur']}
                     rules={[
                       {
@@ -127,18 +136,30 @@ const SettingPage: React.FC = () => {
                       },
                     ]}
                     noStyle
+                    name={[name, 'pageUrl']}
                   >
                     <Input
-                      addonBefore={prefixSelector}
-                      placeholder="请输入数据抓取网页地址"
+                      addonBefore={
+                        <Form.Item
+                          name={[name, 'protocol']}
+                          noStyle
+                          initialValue={'http'}
+                        >
+                          <Select style={{ width: 90 }}>
+                            <Option value="http">http</Option>
+                            <Option value="https">https</Option>
+                          </Select>
+                        </Form.Item>
+                      }
                       style={{ width: '90%' }}
+                      placeholder="请输入数据抓取网页地址"
                     />
                   </Form.Item>
                   {fields.length > 1 ? (
                     <MinusCircleOutlined
                       style={{ color: '#E95454' }}
-                      onClick={() => remove(field.name)}
-                      className="ml10 f16"
+                      onClick={() => remove(name)}
+                      className="ml10 f16 mt10"
                     />
                   ) : null}
                 </Form.Item>
@@ -155,17 +176,21 @@ const SettingPage: React.FC = () => {
             </>
           )}
         </Form.List>
-
       </Form>
       <div className="flex-r-c mt32">
-        <Button style={{ flex: 1 }} className={'mr10'}>
+        <Button style={{ flex: 1 }} className={'mr10'} onClick={putAppConfigFn}>
           恢复默认配置
         </Button>
-        <Button className={'ml10'} style={{ flex: 1 }} type={'primary'} onClick={() => {
-          form.validateFields().then(val => {
-            postSystemConfigFn(val)
-          })
-        }}>
+        <Button
+          className={'ml10'}
+          style={{ flex: 1 }}
+          type={'primary'}
+          onClick={() => {
+            form.validateFields().then((val) => {
+              postSystemConfigFn(val);
+            });
+          }}
+        >
           保存
         </Button>
       </div>
