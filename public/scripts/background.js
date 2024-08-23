@@ -46,13 +46,21 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
       'webinfo',
     );
   });
+  chrome.storage.local.get('settingInfo', function (result) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        type: 'FROM_BACKGROUND_SETINFO',
+        msg: result['settingInfo'],
+      });
+    });
+  });
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {
     chrome.scripting.executeScript({
       target: { tabId: tabId },
-      files: ['scripts/onupdate.js', 'scripts/index-DpZqY0uN.js'],
+      files: ['scripts/onupdate.js', 'scripts/index-DA_nUF1f.js'],
     });
   }
 });
@@ -82,16 +90,15 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log(request);
-  if (request.type === 'FROM_CONTENT_SCRIPT') {
-    sendResponse({ msg: 'Goodbye from background' });
-  } else if (request.type === 'FROM_CONTENT_WEBINFO') {
-    sendResponse('');
+  if (request.type === 'FROM_CONTENT_WEBINFO') {
     let info = JSON.parse(request.msg);
     sendPanelData(info, 'webinfo');
   } else if (request.type === 'FROM_CONTENT_IP') {
     fetchData('/api/v1/ip/' + request.msg)
-      .then((data) => {
-        sendResponse({ msg: Object.assign({ ip: request.msg }, data) });
+      .then((res) => {
+        sendResponse({
+          msg: Object.assign({ ip: request.msg }, res.data.item),
+        });
       })
       .catch((error) => {
         sendResponse({ success: false, error: error.message });

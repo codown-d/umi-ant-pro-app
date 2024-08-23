@@ -1,4 +1,3 @@
-import { postSystemConfig, putAppConfig } from '@/services';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import { useAccess } from '@umijs/max';
@@ -11,7 +10,7 @@ import {
   Switch,
   message,
 } from 'antd';
-import { useCallback } from 'react';
+import { useEffect } from 'react';
 import './index.less';
 
 let { Option } = Select;
@@ -23,23 +22,15 @@ const SettingPage: React.FC = () => {
       enable: true,
     },
   ];
-
   const [form] = Form.useForm();
-  let postSystemConfigFn = useCallback((val) => {
-    console.log(val);
-    postSystemConfig(val).then((res) => {
-      if (res.code === 0) {
-        message.success('保存成功');
-      }
-      console.log(res);
-    });
-  }, []);
-  let putAppConfigFn = useCallback(() => {
-    putAppConfig().then((res) => {
-      if (res.code === 0) {
-        message.success('恢复默认配置');
-      }
-    });
+  useEffect(() => {
+    chrome.storage.local.get(
+      'settingInfo',
+      function (result: { [x: string]: any }) {
+        console.log('Data retrieved:', result['settingInfo']);
+        form.setFieldsValue(result['settingInfo']);
+      },
+    );
   }, []);
   return (
     <PageContainer
@@ -131,8 +122,7 @@ const SettingPage: React.FC = () => {
                       {
                         required: true,
                         whitespace: true,
-                        message:
-                          "Please input passenger's name or delete this field.",
+                        message: '请输入数据抓取网页地址',
                       },
                     ]}
                     noStyle
@@ -178,7 +168,22 @@ const SettingPage: React.FC = () => {
         </Form.List>
       </Form>
       <div className="flex-r-c mt32">
-        <Button style={{ flex: 1 }} className={'mr10'} onClick={putAppConfigFn}>
+        <Button
+          style={{ flex: 1 }}
+          className={'mr10'}
+          onClick={() => {
+            let settingInfo = {
+              enable: true,
+              maxStudyTime: 90,
+              disposeDelay: 10,
+              product: [],
+            };
+            chrome.storage.local.set({ settingInfo }, () => {
+              form.setFieldsValue(settingInfo);
+              message.success('恢复默认配置');
+            });
+          }}
+        >
           恢复默认配置
         </Button>
         <Button
@@ -186,8 +191,25 @@ const SettingPage: React.FC = () => {
           style={{ flex: 1 }}
           type={'primary'}
           onClick={() => {
-            form.validateFields().then((val) => {
-              postSystemConfigFn(val);
+            form.validateFields().then((settingInfo) => {
+              console.log(settingInfo);
+              chrome.tabs.query(
+                { active: true, currentWindow: true },
+                (tabs) => {
+                  chrome.tabs.sendMessage(
+                    tabs[0].id,
+                    {
+                      type: 'FROM_BACKGROUND_SETINFO',
+                      msg: settingInfo,
+                    },
+                    () => {
+                      chrome.storage.local.set({ settingInfo }, () => {
+                        message.success('保存成功');
+                      });
+                    },
+                  );
+                },
+              );
             });
           }}
         >

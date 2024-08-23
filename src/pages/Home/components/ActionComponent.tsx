@@ -45,7 +45,7 @@ const ActionComponent: React.FC = () => {
         非数据抓取页面无法进行学习或值守
       </div>
       <Input
-        addonBefore={selectBefore}
+        // addonBefore={selectBefore}
         defaultValue={webInfo?.host}
         className={`mt12 ${styles.select}`}
       />

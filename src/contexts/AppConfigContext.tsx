@@ -51,10 +51,10 @@ const AppConfigProvider: React.FC<AppConfigProviderProps> = ({ children }) => {
           title: info?.title,
           hash: hash || path,
         });
-        sendResponse('ok');
+        sendResponse();
       }
     });
-    chrome.storage.session.get(['webinfo'], (result: any) => {
+    chrome.storage?.session.get(['webinfo'], (result: any) => {
       let info = result.webinfo;
       let { path, hash, origin } = parseUrl(info.url);
       setWebInfo({

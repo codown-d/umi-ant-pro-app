@@ -15,15 +15,12 @@ function sendWebInfo() {
 }
 var pos = { startX: 0, startY: 0 };
 function handleMessage(event) {
+  console.log(event);
   if (event.source !== window) return;
   let type = event.data.type;
-  console.log('Received from content script:', event.data.msg);
-  if (type === 'FROM_CONTENT_SCRIPT') {
-  } else if (type === 'FROM_CONTENT_IP') {
-    if (window.AISOC) {
-      let msg = event.data.msg;
-      window.AISOC.openModal(msg, pos);
-    }
+  if (type === 'FROM_CONTENT_IP' && window.AISOC) {
+    let msg = event.data.msg;
+    window.AISOC.openModal(msg, pos);
   }
 }
 
@@ -37,12 +34,15 @@ function isValidIP(ip) {
   return ipRegex.test(ip);
 }
 function aisocMouseup(event) {
+  let setInfo = JSON.parse(
+    window.localStorage.getItem('AISOC_SETINFO') || '{}',
+  );
+  console.log(setInfo);
+  if (!setInfo.enable) return;
   const distance = Math.abs(event.clientX - pos.startX);
-  console.log(123, distance, pos);
   if (distance > 5) {
     const selectedText = window.getSelection().toString().trim();
     if (selectedText && isValidIP(selectedText)) {
-      console.log('Selected text:', selectedText);
       sendMessage(selectedText, 'FROM_PAGE_IP');
     }
   }
@@ -58,7 +58,6 @@ function init() {
     window.addEventListener('mousedown', aisocMousedown);
     window.addEventListener('mouseup', aisocMouseup);
   } else {
-    console.log('AISOC is already initialized. 发送webInfo');
     sendWebInfo();
   }
 }

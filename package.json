@@ -16,7 +16,9 @@
     "antd": "^5.20.1",
     "axios": "^1.7.4",
     "moment": "^2.30.1",
-    "rc-virtual-list": "^3.14.5"
+    "rc-virtual-list": "^3.14.5",
+    "slate": "^0.103.0",
+    "slate-react": "^0.108.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
