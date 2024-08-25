@@ -60,7 +60,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete') {
     chrome.scripting.executeScript({
       target: { tabId: tabId },
-      files: ['scripts/onupdate.js', 'scripts/index-DA_nUF1f.js'],
+      files: ['scripts/onupdate.js', 'scripts/index-Bxx0IOn4.js'],
     });
   }
 });
