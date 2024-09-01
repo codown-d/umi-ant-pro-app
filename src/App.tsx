@@ -272,26 +272,31 @@ const App: React.FC = () => {
     wait: 500,
   },);
   useEffect(() => {
-    window.removeEventListener("message", run);
     window.addEventListener("message", run);
   }, [run]);
   useEffect(() => {
     function mouseup() {
       setTimeout(() => {
-        setShowIcon(false);
-        const selection = window.getSelection();
-        const selectedText = selection.toString().trim();
-        if (selection.rangeCount > 0 && selectedText && isValidIP(selectedText)) {
-          const range = selection.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
-          setIconStyle({ left: rect.left + rect.width, top: rect.top - 40 });
-          requestStorage('settingInfo', (setInfo) => {
-            console.log(setInfo)
-            if (!setInfo.enable) return;
-            setShowIcon(true);
-            selectedTextRef.current = selectedText;
-          })
+        try {
+          setShowIcon(false);
+          const selection = window.getSelection();
+          const selectedText = selection.toString().trim();
+          if (selection.rangeCount > 0 && selectedText && isValidIP(selectedText)) {
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            setIconStyle({ left: rect.left + rect.width, top: rect.top - 40 });
+            requestStorage('settingInfo', (setInfo) => {
+              console.log(setInfo)
+              if (!setInfo.enable) return;
+              setShowIcon(true);
+              selectedTextRef.current = selectedText;
+            })
+          }
+        } catch (e) {
+          setShowIcon(false);
+          console.log('e',e);
         }
+       
       }, 0)
     }
     window.addEventListener("mouseup", mouseup);
