@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Input, Modal, Table, Tag, message } from "antd";
+import { Input, Modal, Table, Tag, Tooltip, message } from "antd";
 import "./App.less";
 import moment from "moment";
 import Draggable from "react-draggable"; // The default
@@ -250,14 +250,14 @@ const App: React.FC = () => {
 
     return ipRegex.test(ip) || ipRegexIpv6.test(ip);
   }, []);
-  let {run } = useDebounceFn(
+  let { run } = useDebounceFn(
     (event) => {
       if (event.source !== window) return;
       let type = event.data.type;
       if (type === "FROM_CONTENT_IP") {
         let msg = event.data.msg;
         if (!msg) {
-          console.log(123456,message)
+          console.log(123456, message)
           message.warning("IP信息获取失败");
         } else {
           console.log(iconStyle);
@@ -267,30 +267,31 @@ const App: React.FC = () => {
           setShowIcon(false);
         }
       }
-    },{
-      wait: 500,
-    },);
+    }, {
+    wait: 500,
+  },);
   useEffect(() => {
-    console.log(123456,message)
-    window.removeEventListener("message", run );
-    window.addEventListener("message", run );
-  }, [run ]);
+    window.removeEventListener("message", run);
+    window.addEventListener("message", run);
+  }, [run]);
   useEffect(() => {
     function mouseup() {
-      setShowIcon(false);
-      const selection = window.getSelection();
-      const selectedText = selection.toString().trim();
-      if (selection.rangeCount > 0 && selectedText && isValidIP(selectedText)) {
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        setIconStyle({ left: rect.left + rect.width, top: rect.top - 40 });
-        requestStorage('settingInfo', (setInfo) => {
-          console.log(setInfo)
-          if (!setInfo.enable) return;
-          setShowIcon(true);
-          selectedTextRef.current = selectedText;
-        })
-      }
+      setTimeout(() => {
+        setShowIcon(false);
+        const selection = window.getSelection();
+        const selectedText = selection.toString().trim();
+        if (selection.rangeCount > 0 && selectedText && isValidIP(selectedText)) {
+          const range = selection.getRangeAt(0);
+          const rect = range.getBoundingClientRect();
+          setIconStyle({ left: rect.left + rect.width, top: rect.top - 40 });
+          requestStorage('settingInfo', (setInfo) => {
+            console.log(setInfo)
+            if (!setInfo.enable) return;
+            setShowIcon(true);
+            selectedTextRef.current = selectedText;
+          })
+        }
+      }, 0)
     }
     window.addEventListener("mouseup", mouseup);
     return () => {
@@ -316,21 +317,22 @@ const App: React.FC = () => {
   return (
     <>
       {showIcon ? (
-        <img
-          src={iconImgUrl}
-          width={30}
-          onMouseDown={() => {
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            sendMessage(selectedTextRef.current, "FROM_PAGE_IP");
-          }}
-          style={{
-            position: "fixed",
-            left: iconStyle.left,
-            top: iconStyle.top,
-            zIndex: 9999,
-          }}
-        />
+        <Tooltip title={'查询威胁情报'} placement={'top'}>
+          <img
+            src={iconImgUrl}
+            width={30}
+            onMouseDown={() => {
+              const selection = window.getSelection();
+              selection.removeAllRanges();
+              sendMessage(selectedTextRef.current, "FROM_PAGE_IP");
+            }}
+            style={{
+              position: "fixed",
+              left: iconStyle.left,
+              top: iconStyle.top,
+              zIndex: 9999,
+            }}
+          /></Tooltip>
       ) : null}
       <Draggable handle=".drag-handler">
         <div
