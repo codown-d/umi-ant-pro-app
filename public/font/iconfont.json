@@ -6,6 +6,13 @@
   "description": "产品图标",
   "glyphs": [
     {
+      "icon_id": "41574185",
+      "name": "运营商",
+      "font_class": "a-yunyingshang2",
+      "unicode": "e6cd",
+      "unicode_decimal": 59085
+    },
+    {
       "icon_id": "41180431",
       "name": "查看详情",
       "font_class": "chakanxiangqing",
