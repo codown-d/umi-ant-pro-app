@@ -5,12 +5,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Input, Modal, Table, Tag, Tooltip, message } from "antd";
+import { Input, Table, Tag,  message } from "antd";
 import "./App.less";
 import moment from "moment";
-import Draggable from "react-draggable"; // The default
+import Draggable from "react-draggable";
 import { requestStorage, sendMessage } from "./lib";
 import { useDebounceFn } from "ahooks";
+import TzTooltip from "./components/tz-tooltip";
 let expiredType: any = {
   valid: { color: "#52C41A", text: "有效" },
   invalid: { color: "#E95454", text: "无效" },
@@ -317,7 +318,7 @@ const App: React.FC = () => {
   return (
     <>
       {showIcon ? (
-        <Tooltip title={'查询威胁情报'} placement={'top'}>
+        <TzTooltip title={'查询威胁情报'} placement={'top'}>
           <img
             src={iconImgUrl}
             width={30}
@@ -332,7 +333,7 @@ const App: React.FC = () => {
               top: iconStyle.top,
               zIndex: 9999,
             }}
-          /></Tooltip>
+          /></TzTooltip>
       ) : null}
       <Draggable handle=".drag-handler">
         <div
