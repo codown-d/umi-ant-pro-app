@@ -1,5 +1,6 @@
 import { Tooltip, Typography } from "antd";
 import { useOverflowTooltip } from "../../hooks";
+import TzTooltip from "../tz-tooltip";
 const { Text } = Typography;
 interface TruncatedTextWithTooltipProps {
   content: React.ReactNode;
@@ -8,7 +9,7 @@ const TruncatedTextWithTooltip = (props: TruncatedTextWithTooltipProps) => {
   let { content } = props;
   const { contentRef, isOverflow } = useOverflowTooltip(content);
   return (
-    <Tooltip title={isOverflow ? content : undefined}>
+    <TzTooltip title={isOverflow ? content : undefined}>
       <Text
         ellipsis
         ref={contentRef}
@@ -16,7 +17,7 @@ const TruncatedTextWithTooltip = (props: TruncatedTextWithTooltipProps) => {
       >
         {content}
       </Text>
-    </Tooltip>
+    </TzTooltip>
   );
 };
 export default TruncatedTextWithTooltip;

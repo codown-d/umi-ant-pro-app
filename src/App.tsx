@@ -82,7 +82,9 @@ const App: React.FC = () => {
       {
         key: "5",
         label: "ANS",
-        children: `${dataInfo?.asn.number || ""} ${dataInfo?.asn.info || "-"}`,
+        children: `${dataInfo?.asn?.number || ""} ${
+          dataInfo?.asn?.info || "-"
+        }`,
       },
     ];
   }, [dataInfo]);
@@ -382,7 +384,7 @@ const App: React.FC = () => {
               position: "fixed",
               left: iconStyle.left,
               top: iconStyle.top,
-              zIndex: 99999,
+              zIndex: 2147483647,
               cursor: "pointer",
             }}
           />
@@ -395,7 +397,7 @@ const App: React.FC = () => {
             ...calModalStyle,
             width: `700px`,
             opacity: `${modalOpen ? 1 : 0}`,
-            zIndex: `${modalOpen ? 999 : -999}`,
+            zIndex: `${modalOpen ? 2147483645 : -9999}`,
           }}
         >
           <div className="drag-handler">
@@ -476,7 +478,10 @@ const App: React.FC = () => {
                     <i className="iconfont icon-a-yunyingshang2 mr4 f12"></i>
                     <span style={{ width: "92%" }}>
                       <TruncatedTextWithTooltip
-                        content={dataInfo?.carrier || "-"}
+                        content={
+                          dataInfo?.carrier ||
+                          "1234564564ssssssssssssssssssssss"
+                        }
                       />
                     </span>
                   </span>
