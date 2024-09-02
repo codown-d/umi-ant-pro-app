@@ -82,32 +82,34 @@ const App: React.FC = () => {
     return [
       {
         key: "1",
-        num: dataInfo?.onlineIntelligences.length,
+        num: dataInfo?.onlineIntelligences
+          ? dataInfo?.onlineIntelligences.length
+          : 0,
         label: "在线情报",
       },
       {
         key: "2",
-        num: dataInfo?.ossIntelligences.length,
+        num: dataInfo?.ossIntelligences ? dataInfo?.ossIntelligences.length : 0,
         label: "开源情报",
       },
       {
         key: "3",
-        num: dataInfo?.ports?.length,
+        num: dataInfo?.ports ? dataInfo?.ports?.length : 0,
         label: "开放端口",
       },
       {
         key: "4",
-        num: dataInfo?.rdnses?.length,
+        num: dataInfo?.rdnses ? dataInfo?.rdnses?.length : 0,
         label: "rDNS 记录",
       },
       {
         key: "5",
-        num: dataInfo?.samples?.length,
+        num: dataInfo?.samples ? dataInfo?.samples?.length : 0,
         label: "相关样本",
       },
       {
         key: "6",
-        num: dataInfo?.cas?.length,
+        num: dataInfo?.cas ? dataInfo?.cas?.length : 0,
         label: "SSL 相关证书",
       },
     ];
@@ -509,7 +511,7 @@ const App: React.FC = () => {
                   <NoData />
                 )}
               </div>
-              <Title title={"相关样本"} className={"mb6 mt16"} />
+              <Title title={"SSL 相关证书"} className={"mb6 mt16"} />
               <Table
                 tableLayout={"fixed"}
                 locale={{ emptyText: <NoData /> }}
