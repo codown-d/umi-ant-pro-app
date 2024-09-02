@@ -5,13 +5,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Input, Table, Tag,  message } from "antd";
+import { Input, Table, Tag, message } from "antd";
 import "./App.less";
 import moment from "moment";
 import Draggable from "react-draggable";
 import { requestStorage, sendMessage } from "./lib";
 import { useDebounceFn } from "ahooks";
 import TzTooltip from "./components/tz-tooltip";
+import NoData from "./components/no-data";
 let expiredType: any = {
   valid: { color: "#52C41A", text: "有效" },
   invalid: { color: "#E95454", text: "无效" },
@@ -73,7 +74,7 @@ const App: React.FC = () => {
       {
         key: "5",
         label: "ANS",
-        children: `${dataInfo?.asn.number || ""} ${dataInfo?.asn.name || ""}`,
+        children: `${dataInfo?.asn.number || ""} ${dataInfo?.asn.name || "-"}`,
       },
     ];
   }, [dataInfo]);
@@ -258,19 +259,19 @@ const App: React.FC = () => {
       if (type === "FROM_CONTENT_IP") {
         let msg = event.data.msg;
         if (!msg) {
-          console.log(123456, message)
           message.warning("IP信息获取失败");
         } else {
-          console.log(iconStyle);
           setModalOpen(true);
           setModalStyle({ ...iconStyle, left: iconStyle.left + 30 });
           setDataInfo(event.data.msg);
           setShowIcon(false);
         }
       }
-    }, {
-    wait: 500,
-  },);
+    },
+    {
+      wait: 500,
+    }
+  );
   useEffect(() => {
     window.addEventListener("message", run);
   }, [run]);
@@ -281,23 +282,24 @@ const App: React.FC = () => {
           setShowIcon(false);
           const selection = window.getSelection();
           const selectedText = selection.toString().trim();
-          if (selection.rangeCount > 0 && selectedText && isValidIP(selectedText)) {
+          if (
+            selection.rangeCount > 0 &&
+            selectedText &&
+            isValidIP(selectedText)
+          ) {
             const range = selection.getRangeAt(0);
             const rect = range.getBoundingClientRect();
             setIconStyle({ left: rect.left + rect.width, top: rect.top - 40 });
-            requestStorage('settingInfo', (setInfo) => {
-              console.log(setInfo)
+            requestStorage("settingInfo", (setInfo) => {
               if (!setInfo.enable) return;
               setShowIcon(true);
               selectedTextRef.current = selectedText;
-            })
+            });
           }
         } catch (e) {
           setShowIcon(false);
-          console.log('e',e);
         }
-       
-      }, 0)
+      }, 0);
     }
     window.addEventListener("mouseup", mouseup);
     return () => {
@@ -323,7 +325,7 @@ const App: React.FC = () => {
   return (
     <>
       {showIcon ? (
-        <TzTooltip title={'查询威胁情报'} placement={'top'}>
+        <TzTooltip title={"查询威胁情报"} placement={"top"}>
           <img
             src={iconImgUrl}
             width={30}
@@ -338,7 +340,8 @@ const App: React.FC = () => {
               top: iconStyle.top,
               zIndex: 9999,
             }}
-          /></TzTooltip>
+          />
+        </TzTooltip>
       ) : null}
       <Draggable handle=".drag-handler">
         <div
@@ -358,7 +361,7 @@ const App: React.FC = () => {
                 justifyContent: "space-between",
                 cursor: "move",
                 fontWeight: 550,
-                color: "#3E4653",
+                color: "#1E222A",
                 padding: "16px 0",
               }}
             >
@@ -398,7 +401,7 @@ const App: React.FC = () => {
                 className="ip-img"
                 style={{ width: "72px", height: "72px" }}
               />
-              <div className="ml16">
+              <div className="ml16" style={{ flex: 1 }}>
                 <div className="flex-r-c" style={{ flexWrap: "wrap" }}>
                   <span className={"ip mr40 f24"}>{dataInfo?.ip}</span>
                   <span className="mr40 flex-r-c mr40">
@@ -409,27 +412,36 @@ const App: React.FC = () => {
                       dataInfo?.location.city,
                     ]
                       .filter((item) => !!item)
-                      .join("/")}
+                      .join("/") || "-"}
                   </span>
                   <span className="mr40">
                     <i className="iconfont icon-a-yunyingshang2 mr4 f12"></i>
-                    {`${dataInfo?.carrier || ""}`}
+                    {`${dataInfo?.carrier || "-"}`}
                   </span>
                 </div>
                 <div className="flex-r-c f12" style={{ flexWrap: "wrap" }}>
                   {items.slice(0, 2).map((item, index) => {
                     return (
-                      <div key={index} className="mb8">
+                      <div key={index} className="mb8" style={{ width: "50%" }}>
                         <span style={{ color: "#6C7480" }}>{item.label}：</span>
-                        <span>{item.children}</span>
+                        <span>
+                          {item.children?.length != 0 ? item.children : "-"}
+                        </span>
                       </div>
                     );
                   })}
                   {items.slice(2).map((item, index) => {
                     return (
-                      <div key={index + 2} className="mr40 mb8">
+                      <div
+                        key={index + 2}
+                        className="mb8"
+                        style={{ width: "33%" }}
+                      >
                         <span style={{ color: "#6C7480" }}>{item.label}：</span>
-                        <span>{item.children}</span>
+                        <span>
+                          {" "}
+                          {item.children?.length != 0 ? item.children : "-"}
+                        </span>
                       </div>
                     );
                   })}
@@ -450,6 +462,8 @@ const App: React.FC = () => {
               <Title title={"在线情报"} className={"mb6 mt16"} />
               <Table
                 columns={onlineIntCol}
+                locale={{ emptyText: <NoData /> }}
+                tableLayout={"fixed"}
                 dataSource={dataInfo?.onlineIntelligences}
                 size={"small"}
                 pagination={false}
@@ -457,6 +471,8 @@ const App: React.FC = () => {
               <Title title={"开源情报"} className={"mb6 mt16"} />
               <Table
                 columns={onlineIntCol}
+                locale={{ emptyText: <NoData /> }}
+                tableLayout={"fixed"}
                 dataSource={dataInfo?.oSSIntelligences}
                 size={"small"}
                 pagination={false}
@@ -464,6 +480,8 @@ const App: React.FC = () => {
               <Title title={"开放端口"} className={"mb6 mt16"} />
               <Table
                 columns={openPortCol}
+                locale={{ emptyText: <NoData /> }}
+                tableLayout={"fixed"}
                 dataSource={dataInfo?.ports}
                 size={"small"}
                 pagination={false}
@@ -471,22 +489,30 @@ const App: React.FC = () => {
               <Title title={"相关样本"} className={"mb6 mt16"} />
               <Table
                 columns={relatedSamplesCol}
+                locale={{ emptyText: <NoData /> }}
+                tableLayout={"fixed"}
                 dataSource={dataInfo?.samples}
                 size={"small"}
                 pagination={false}
               />
               <Title title={"rDNS 记录"} className={"mb6 mt16"} />
               <div>
-                {dataInfo?.rdnses?.map((item, index) => {
-                  return (
-                    <Tag color="#2177D1" key={index} className="mt2 mb2">
-                      {item.rdns}
-                    </Tag>
-                  );
-                })}
+                {dataInfo?.rdnses?.length > 0 ? (
+                  dataInfo?.rdnses?.map((item, index) => {
+                    return (
+                      <Tag color="#2177D1" key={index} className="mt2 mb2">
+                        {item.rdns}
+                      </Tag>
+                    );
+                  })
+                ) : (
+                  <NoData />
+                )}
               </div>
               <Title title={"相关样本"} className={"mb6 mt16"} />
               <Table
+                tableLayout={"fixed"}
+                locale={{ emptyText: <NoData /> }}
                 columns={sslCertCol}
                 dataSource={dataInfo?.cas}
                 size={"small"}

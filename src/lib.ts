@@ -9,12 +9,14 @@ export function sendMessage(data: any, type: string) {
 }
 
 export function requestStorage(key: string, callback: (arg: any) => void) {
-  chrome.runtime?.sendMessage({ type: 'FROM_PAGE_GETPLUGCONFIG', key }, (response: any) => {
-    if (response.error) {
-      console.error('Error retrieving data:', response.error);
-      return;
+  chrome.runtime?.sendMessage(
+    { type: "FROM_PAGE_GETPLUGCONFIG", key },
+    (response: any) => {
+      if (response.error) {
+        console.error("Error retrieving data:", response.error);
+        return;
+      }
+      callback(response.value);
     }
-    callback(response.value);
-  });
+  );
 }
-
