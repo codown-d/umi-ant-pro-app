@@ -1,0 +1,21 @@
+.title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  color: #3E4653;
+  position: relative;
+  text-align: left;
+
+  &::after {
+    position: absolute;
+    width: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    left: -6px;
+    height: 14px;
+    background: #2177D1;
+    border-radius: 3px;
+    content: '';
+
+  }
+}

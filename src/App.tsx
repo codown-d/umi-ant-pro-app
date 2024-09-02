@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Input, Table, Tag, message } from "antd";
+import { Input, Tag, message } from "antd";
 import "./App.less";
 import moment from "moment";
 import Draggable from "react-draggable";
@@ -13,6 +13,8 @@ import { requestStorage, sendMessage } from "./lib";
 import { useDebounceFn } from "ahooks";
 import TzTooltip from "./components/tz-tooltip";
 import NoData from "./components/no-data";
+import TruncatedTextWithTooltip from "./components/TruncatedTextWithTooltip";
+import TzTable from "./components/tz-table";
 let expiredType: any = {
   valid: { color: "#52C41A", text: "有效" },
   invalid: { color: "#E95454", text: "无效" },
@@ -26,11 +28,17 @@ const App: React.FC = () => {
   const [showIcon, setShowIcon] = useState(false);
   const [iconStyle, setIconStyle] = useState({ left: 0, top: 0 });
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalStyle, setModalStyle] = useState({ left: 0, top: 0 });
+  const [inWide, setInWide] = useState({
+    innerWidth: window.innerWidth,
+    innerHeight: window.innerHeight,
+  });
 
   let [dataInfo, setDataInfo] = useState();
   let selectedTextRef = useRef("");
 
+  let tabeColRender = useCallback((item) => {
+    return item || "-";
+  }, []);
   const items = useMemo(() => {
     let tagsClasses = dataInfo?.tagsClasses ? dataInfo?.tagsClasses : [];
     let judgments = dataInfo?.judgments ? dataInfo?.judgments : [];
@@ -74,7 +82,7 @@ const App: React.FC = () => {
       {
         key: "5",
         label: "ANS",
-        children: `${dataInfo?.asn.number || ""} ${dataInfo?.asn.name || "-"}`,
+        children: `${dataInfo?.asn.number || ""} ${dataInfo?.asn.info || "-"}`,
       },
     ];
   }, [dataInfo]);
@@ -119,6 +127,7 @@ const App: React.FC = () => {
     {
       title: "情报来源",
       dataIndex: "source",
+      render: tabeColRender,
     },
     {
       title: "发现时间",
@@ -135,6 +144,7 @@ const App: React.FC = () => {
     {
       title: "可信度评分",
       dataIndex: "confidence",
+      render: tabeColRender,
     },
     {
       title: "有效性",
@@ -151,11 +161,13 @@ const App: React.FC = () => {
       render: (intelTypes) => {
         return (
           <div>
-            {intelTypes?.map((item, index) => (
-              <Tag color="#E95454" key={index} className="mt2 mb2">
-                {item}
-              </Tag>
-            ))}
+            {intelTypes.length
+              ? intelTypes?.map((item, index) => (
+                  <Tag color="#E95454" key={index} className="mt2 mb2">
+                    {item}
+                  </Tag>
+                ))
+              : "-"}
           </div>
         );
       },
@@ -166,11 +178,13 @@ const App: React.FC = () => {
       render: (intelTags) => {
         return (
           <div>
-            {intelTags?.map((item, index) => (
-              <Tag color="#E95454" key={index} className="mt2 mb2">
-                {item?.tags}
-              </Tag>
-            ))}
+            {intelTags.length
+              ? intelTags?.map((item, index) => (
+                  <Tag color="#E95454" key={index} className="mt2 mb2">
+                    {item?.tags}
+                  </Tag>
+                ))
+              : "-"}
           </div>
         );
       },
@@ -180,22 +194,27 @@ const App: React.FC = () => {
     {
       title: "端口号",
       dataIndex: "port",
+      render: tabeColRender,
     },
     {
       title: "应用协议",
       dataIndex: "module",
+      render: tabeColRender,
     },
     {
       title: "应用名称",
       dataIndex: "product",
+      render: tabeColRender,
     },
     {
       title: "应用版本",
       dataIndex: "version",
+      render: tabeColRender,
     },
     {
       title: "应用详情",
       dataIndex: "detail",
+      render: tabeColRender,
     },
   ];
 
@@ -203,6 +222,7 @@ const App: React.FC = () => {
     {
       title: "文件 hash",
       dataIndex: "hash",
+      render: tabeColRender,
     },
     {
       title: "检测时间",
@@ -213,6 +233,7 @@ const App: React.FC = () => {
     {
       title: "检出率",
       dataIndex: "ratio",
+      render: tabeColRender,
     },
     {
       title: "恶意类型",
@@ -222,25 +243,22 @@ const App: React.FC = () => {
     {
       title: "恶意家族",
       dataIndex: "malwareFamily",
+      render: tabeColRender,
     },
   ];
   let sslCertCol = [
     {
       title: "协议",
       dataIndex: "protocol",
+      render: tabeColRender,
     },
     {
       title: "端口信息",
       dataIndex: "port",
+      render: tabeColRender,
     },
     {
-      title: "使用日期",
-      dataIndex: "period",
-      width: "30%",
-      render: (text) => moment(text).format("YYYY-MM-DD HH:mm:ss"),
-    },
-    {
-      title: "证书详情",
+      title: "用途",
       dataIndex: "digitalCertificate",
       width: "40%",
       render: (text) => text?.purpose || text?.subject,
@@ -264,7 +282,6 @@ const App: React.FC = () => {
           message.warning("IP信息获取失败");
         } else {
           setModalOpen(true);
-          setModalStyle({ ...iconStyle, left: iconStyle.left + 30 });
           setDataInfo(event.data.msg);
           setShowIcon(false);
         }
@@ -304,8 +321,16 @@ const App: React.FC = () => {
       }, 0);
     }
     window.addEventListener("mouseup", mouseup);
+    const handleResize = () => {
+      setInWide({
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+      });
+    };
+    window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("mouseup", mouseup);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -323,7 +348,21 @@ const App: React.FC = () => {
       ? url
       : chrome.runtime.getURL(url);
   }, []);
-
+  let calModalStyle = useMemo(() => {
+    if (iconStyle.left + 730 > inWide.innerWidth) {
+      return {
+        top: iconStyle.top + "px",
+        right: 10 + "px",
+      };
+    }
+    if (iconStyle.top + 750 > inWide.innerHeight) {
+      return {
+        left: iconStyle.left + "px",
+        top: 30 + "px",
+      };
+    }
+    return { left: iconStyle.left + 30, top: iconStyle.top + 10 };
+  }, [iconStyle, inWide]);
   return (
     <>
       {showIcon ? (
@@ -335,12 +374,16 @@ const App: React.FC = () => {
               const selection = window.getSelection();
               selection.removeAllRanges();
               sendMessage(selectedTextRef.current, "FROM_PAGE_IP");
+              if (!chrome.runtime) {
+                setModalOpen(true);
+              }
             }}
             style={{
               position: "fixed",
               left: iconStyle.left,
               top: iconStyle.top,
-              zIndex: 9999,
+              zIndex: 99999,
+              cursor: "pointer",
             }}
           />
         </TzTooltip>
@@ -349,11 +392,10 @@ const App: React.FC = () => {
         <div
           className={"aisoc-modal tz-aisoc"}
           style={{
-            left: `${modalStyle.left}px`,
-            top: `${modalStyle.top}px`,
+            ...calModalStyle,
             width: `700px`,
             opacity: `${modalOpen ? 1 : 0}`,
-            zIndex: `${modalOpen ? 9999 : -9999}`,
+            zIndex: `${modalOpen ? 999 : -999}`,
           }}
         >
           <div className="drag-handler">
@@ -405,29 +447,55 @@ const App: React.FC = () => {
               />
               <div className="ml16" style={{ flex: 1 }}>
                 <div className="flex-r-c" style={{ flexWrap: "wrap" }}>
-                  <span className={"ip mr40 f24"}>{dataInfo?.ip}</span>
-                  <span className="mr40 flex-r-c mr40">
-                    <i className="iconfont icon-weizhi mr4 f12"></i>
-                    {[
-                      dataInfo?.location.country,
-                      dataInfo?.location.province,
-                      dataInfo?.location.city,
-                    ]
-                      .filter((item) => !!item)
-                      .join("/") || "-"}
+                  <span
+                    className={"ip f24"}
+                    style={{ display: "inline-block", width: "220px" }}
+                  >
+                    {dataInfo?.ip}
                   </span>
-                  <span className="mr40">
+                  <span
+                    className="mr40 flex-r-c mr40"
+                    style={{ flex: 1, width: 0 }}
+                  >
+                    <i className="iconfont icon-weizhi mr4 f12"></i>
+                    <span style={{ width: "92%" }}>
+                      <TruncatedTextWithTooltip
+                        content={
+                          [
+                            dataInfo?.location.country,
+                            dataInfo?.location.province,
+                            dataInfo?.location.city,
+                          ]
+                            .filter((item) => !!item)
+                            .join("/") || "-"
+                        }
+                      />
+                    </span>
+                  </span>
+                  <span className="mr40 flex-r-c" style={{ flex: 1, width: 0 }}>
                     <i className="iconfont icon-a-yunyingshang2 mr4 f12"></i>
-                    {`${dataInfo?.carrier || "-"}`}
+                    <span style={{ width: "92%" }}>
+                      <TruncatedTextWithTooltip
+                        content={dataInfo?.carrier || "-"}
+                      />
+                    </span>
                   </span>
                 </div>
                 <div className="flex-r-c f12" style={{ flexWrap: "wrap" }}>
                   {items.slice(0, 2).map((item, index) => {
                     return (
-                      <div key={index} className="mb8" style={{ width: "50%" }}>
+                      <div
+                        key={index}
+                        className="mb8 flex-r-c"
+                        style={{ width: "50%" }}
+                      >
                         <span style={{ color: "#6C7480" }}>{item.label}：</span>
-                        <span>
-                          {item.children?.length != 0 ? item.children : "-"}
+                        <span style={{ width: 0, flex: 1 }}>
+                          <TruncatedTextWithTooltip
+                            content={
+                              item.children?.length != 0 ? item.children : "-"
+                            }
+                          />
                         </span>
                       </div>
                     );
@@ -436,13 +504,16 @@ const App: React.FC = () => {
                     return (
                       <div
                         key={index + 2}
-                        className="mb8"
+                        className="mb8 flex-r-c"
                         style={{ width: "33%" }}
                       >
                         <span style={{ color: "#6C7480" }}>{item.label}：</span>
-                        <span>
-                          {" "}
-                          {item.children?.length != 0 ? item.children : "-"}
+                        <span style={{ width: 0, flex: 1 }}>
+                          <TruncatedTextWithTooltip
+                            content={
+                              item.children?.length != 0 ? item.children : "-"
+                            }
+                          />
                         </span>
                       </div>
                     );
@@ -462,34 +533,31 @@ const App: React.FC = () => {
             </div>
             <div style={{ maxHeight: 500, overflow: "auto" }}>
               <Title title={"在线情报"} className={"mb6 mt16"} />
-              <Table
+              <TzTable
                 columns={onlineIntCol}
-                locale={{ emptyText: <NoData /> }}
                 tableLayout={"fixed"}
                 dataSource={dataInfo?.onlineIntelligences}
                 size={"small"}
                 pagination={false}
               />
               <Title title={"开源情报"} className={"mb6 mt16"} />
-              <Table
+              <TzTable
                 columns={onlineIntCol}
-                locale={{ emptyText: <NoData /> }}
                 tableLayout={"fixed"}
                 dataSource={dataInfo?.oSSIntelligences}
                 size={"small"}
                 pagination={false}
               />
               <Title title={"开放端口"} className={"mb6 mt16"} />
-              <Table
+              <TzTable
                 columns={openPortCol}
-                locale={{ emptyText: <NoData /> }}
                 tableLayout={"fixed"}
                 dataSource={dataInfo?.ports}
                 size={"small"}
                 pagination={false}
               />
               <Title title={"相关样本"} className={"mb6 mt16"} />
-              <Table
+              <TzTable
                 columns={relatedSamplesCol}
                 locale={{ emptyText: <NoData /> }}
                 tableLayout={"fixed"}
@@ -512,9 +580,8 @@ const App: React.FC = () => {
                 )}
               </div>
               <Title title={"SSL 相关证书"} className={"mb6 mt16"} />
-              <Table
+              <TzTable
                 tableLayout={"fixed"}
-                locale={{ emptyText: <NoData /> }}
                 columns={sslCertCol}
                 dataSource={dataInfo?.cas}
                 size={"small"}
