@@ -1,5 +1,4 @@
 import { Table, TableProps } from "antd";
-import classNames from "classnames";
 import { useMemo } from "react";
 import NoData from "../no-data";
 
@@ -10,7 +9,6 @@ export const TzTable = (props: TzTableProps) => {
   const realProps = useMemo(() => {
     return {
       ...props,
-      className: classNames("tz-aisoc-table"),
       locale: { emptyText: <NoData /> },
     };
   }, [props]);

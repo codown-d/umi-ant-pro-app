@@ -1,4 +1,4 @@
-import { Tooltip, Typography } from "antd";
+import { Typography } from "antd";
 import { useOverflowTooltip } from "../../hooks";
 import TzTooltip from "../tz-tooltip";
 const { Text } = Typography;

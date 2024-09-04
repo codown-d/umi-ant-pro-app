@@ -1,11 +1,27 @@
-export function sendMessage(data: any, type: string) {
-  window.postMessage(
-    {
-      msg: data,
-      type: type || "FROM_PAGE",
-    },
-    "*"
-  );
+import { message } from "antd";
+
+export function sendMessage(
+  data: any,
+  type: string,
+  callback?: (arg?: any) => void
+) {
+  if (chrome.runtime) {
+    chrome.runtime?.sendMessage(
+      { type: type || "FROM_PAGE", msg: data },
+      (response: any) => {
+        if (response?.error) {
+          message.error(response.error);
+          return;
+        }
+        callback?.(response);
+      }
+    );
+  } else {
+    callback?.({
+      type: type,
+      msg: {},
+    });
+  }
 }
 
 export function requestStorage(key: string, callback: (arg: any) => void) {

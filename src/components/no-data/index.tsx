@@ -1,6 +1,7 @@
 import classNames from "classnames";
-import "./index.less";
+import styles from "./index.module.less";
 import { useMemo } from "react";
+
 const NoData = (props?: any) => {
   let { small, ...otherProps } = props || {};
   let getImgUrl = useMemo(() => {
@@ -12,7 +13,7 @@ const NoData = (props?: any) => {
     }
   }, []);
   return (
-    <div {...otherProps} className={`nodata ${props?.className}`}>
+    <div {...otherProps} className={`${styles.nodata} ${props?.className}`}>
       <img
         src={getImgUrl}
         alt="NoData"
